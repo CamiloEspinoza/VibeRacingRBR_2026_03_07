@@ -8,14 +8,26 @@ datasource db {
 }
 
 model Subscriber {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  frequency Frequency @default(WEEKLY)
-  status    SubStatus @default(ACTIVE)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  emailVerified      Boolean   @default(false)
+  verificationToken  String?   @unique
+  verificationExpiry DateTime?
+  status             SubStatus @default(ACTIVE)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  @@index([status, frequency])
+  // OAuth connections
+  linkedinAccessToken  String?
+  linkedinUserId       String?
+  linkedinTokenExpiry  DateTime?
+  xAccessToken         String?
+  xRefreshToken        String?
+  xUserId              String?
+  xTokenExpiry         DateTime?
+
+  @@index([status])
+  @@index([verificationToken])
 }
 
 model Newsletter {
@@ -31,14 +43,21 @@ model Newsletter {
   @@index([status, generatedAt(sort: Desc)])
 }
 
-enum Frequency {
-  DAILY
-  WEEKLY
+model OAuthState {
+  id        String   @id @default(cuid())
+  state     String   @unique
+  provider  String
+  userId    String
+  codeVerifier String?
+  createdAt DateTime @default(now())
+
+  @@index([state])
 }
 
 enum SubStatus {
   ACTIVE
   UNSUBSCRIBED
+  PENDING_VERIFICATION
 }
 
 enum NewsletterStatus {

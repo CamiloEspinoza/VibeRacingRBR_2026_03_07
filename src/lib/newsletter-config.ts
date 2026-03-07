@@ -1,16 +1,16 @@
 export const newsletterConfig = {
   name: "The AI Pulse",
-  tagline: "Tu dosis diaria de innovacion y tecnologia, curada por inteligencia artificial",
+  tagline: "Tu digest personalizado de LinkedIn y X, curado por IA",
   description:
-    "Recibe las noticias mas relevantes de tecnologia, AI, startups y desarrollo de software. Cada edicion es generada automaticamente por IA, ofreciendote una perspectiva unica y actualizada.",
+    "Conecta tus cuentas de LinkedIn y X, y recibe un newsletter personalizado dos veces al dia con un resumen inteligente de tus publicaciones y las tendencias de tu red.",
   topic:
     "Technology news, AI developments, startup ecosystem, software engineering trends, and digital innovation. Focus on Latin America tech scene and global breakthroughs.",
   fromEmail: "newsletter@example.com",
   fromName: "The AI Pulse",
   features: [
-    "Contenido 100% generado por IA",
-    "Noticias de tecnologia actualizadas",
-    "Tendencias en AI y startups",
-    "Frecuencia diaria o semanal",
+    "Conecta LinkedIn y X",
+    "Dos envios diarios",
+    "Curado por IA con Gemini",
+    "Imagenes generadas por IA",
   ],
 };

@@ -23,15 +23,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine which subscribers should receive this
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0 = Sunday
-    const isWeeklyDay = dayOfWeek === 1; // Monday
-
+    // Get all active verified subscribers
     const subscribers = await prisma.subscriber.findMany({
       where: {
         status: "ACTIVE",
-        frequency: isWeeklyDay ? undefined : "DAILY",
+        emailVerified: true,
       },
     });
 

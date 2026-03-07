@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail, Loader2, CheckCircle2 } from "lucide-react";
 
 export function SubscribeForm() {
   const [email, setEmail] = useState("");
-  const [frequency, setFrequency] = useState<"DAILY" | "WEEKLY">("WEEKLY");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,15 +20,24 @@ export function SubscribeForm() {
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, frequency }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
       setMessage(data.message);
-      setStatus(res.ok ? "success" : "error");
 
       if (res.ok) {
+        setStatus("success");
         setEmail("");
+        // Redirect to verification pending page after 2 seconds
+        setTimeout(() => {
+          router.push("/verify?pending=true");
+        }, 2000);
+      } else if (res.status === 409 && data.userId) {
+        // Already subscribed, go to dashboard
+        router.push(`/dashboard?userId=${data.userId}`);
+      } else {
+        setStatus("error");
       }
     } catch {
       setMessage("Error de conexion. Intenta de nuevo.");
@@ -40,13 +50,7 @@ export function SubscribeForm() {
       <div className="flex flex-col items-center gap-3 p-6 rounded-xl bg-accent/50 border border-primary/20">
         <CheckCircle2 className="w-12 h-12 text-green-500" />
         <p className="text-lg font-semibold text-center">{message}</p>
-        <Button
-          variant="ghost"
-          onClick={() => setStatus("idle")}
-          className="text-sm"
-        >
-          Suscribir otro email
-        </Button>
+        <p className="text-sm text-muted-foreground">Redirigiendo...</p>
       </div>
     );
   }
@@ -75,35 +79,14 @@ export function SubscribeForm() {
           {status === "loading" ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            "Suscribirme"
+            "Comenzar"
           )}
         </Button>
       </div>
 
-      <div className="flex items-center gap-4 justify-center">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="radio"
-            name="frequency"
-            value="WEEKLY"
-            checked={frequency === "WEEKLY"}
-            onChange={() => setFrequency("WEEKLY")}
-            className="accent-primary"
-          />
-          <span className="text-sm text-muted-foreground">Semanal</span>
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="radio"
-            name="frequency"
-            value="DAILY"
-            checked={frequency === "DAILY"}
-            onChange={() => setFrequency("DAILY")}
-            className="accent-primary"
-          />
-          <span className="text-sm text-muted-foreground">Diario</span>
-        </label>
-      </div>
+      <p className="text-xs text-muted-foreground text-center">
+        Te enviaremos un email de verificacion. Luego podras conectar tu LinkedIn y X.
+      </p>
 
       {status === "error" && (
         <p className="text-sm text-destructive text-center">{message}</p>

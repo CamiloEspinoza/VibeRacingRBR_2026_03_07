@@ -1,6 +1,6 @@
 import { SubscribeForm } from "./subscribe-form";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Zap, Globe, Clock } from "lucide-react";
+import { Sparkles, Linkedin, Twitter, Clock } from "lucide-react";
 import { newsletterConfig } from "@/lib/newsletter-config";
 
 export function HeroSection() {
@@ -13,7 +13,7 @@ export function HeroSection() {
       <div className="relative max-w-4xl mx-auto px-4 pt-20 pb-16 text-center">
         <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm">
           <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-          100% generado por IA
+          Powered by Gemini AI
         </Badge>
 
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
@@ -32,19 +32,19 @@ export function HeroSection() {
           <SubscribeForm />
         </div>
 
-        {/* Features */}
+        {/* How it works */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
           {[
-            { icon: Sparkles, label: "Contenido IA" },
-            { icon: Zap, label: "Actualizado" },
-            { icon: Globe, label: "Tech & AI" },
-            { icon: Clock, label: "Diario o Semanal" },
+            { icon: Linkedin, label: "LinkedIn", color: "text-blue-600" },
+            { icon: Twitter, label: "X (Twitter)", color: "text-gray-900 dark:text-gray-100" },
+            { icon: Sparkles, label: "Curado por IA", color: "text-primary" },
+            { icon: Clock, label: "8AM y 8PM", color: "text-primary" },
           ].map((feature) => (
             <div
               key={feature.label}
               className="flex flex-col items-center gap-2 p-3 rounded-lg bg-card border"
             >
-              <feature.icon className="w-5 h-5 text-primary" />
+              <feature.icon className={`w-5 h-5 ${feature.color}`} />
               <span className="text-sm font-medium">{feature.label}</span>
             </div>
           ))}

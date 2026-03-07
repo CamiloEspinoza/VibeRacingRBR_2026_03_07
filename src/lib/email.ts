@@ -103,3 +103,44 @@ export function buildEmailTemplate({
 </body>
 </html>`;
 }
+
+export function buildVerificationEmailTemplate(verifyUrl: string): string {
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica tu email</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); padding: 32px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800;">The AI Pulse</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px; text-align: center;">
+              <h2 style="margin: 0 0 16px; font-size: 22px; color: #1a1a2e;">Verifica tu email</h2>
+              <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
+                Haz clic en el boton de abajo para verificar tu email y comenzar a conectar tus redes sociales.
+              </p>
+              <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                Verificar email
+              </a>
+              <p style="color: #9ca3af; font-size: 13px; margin: 24px 0 0;">
+                Este enlace expira en 24 horas.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}

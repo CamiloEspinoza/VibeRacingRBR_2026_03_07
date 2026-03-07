@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendEmail, buildVerificationEmailTemplate } from "@/lib/email";
 import { z } from "zod/v4";
+import { randomUUID } from "crypto";
 
 const subscribeSchema = z.object({
   email: z.email(),
-  frequency: z.enum(["DAILY", "WEEKLY"]).default("WEEKLY"),
 });
 
 export async function POST(request: NextRequest) {
@@ -18,30 +19,61 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       if (existing.status === "UNSUBSCRIBED") {
+        // Re-subscribe: send new verification
+        const verificationToken = randomUUID();
         await prisma.subscriber.update({
           where: { email: data.email },
-          data: { status: "ACTIVE", frequency: data.frequency },
+          data: {
+            status: "PENDING_VERIFICATION",
+            verificationToken,
+            verificationExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          },
         });
+        await sendVerificationEmail(data.email, verificationToken);
         return NextResponse.json(
-          { message: "Te has re-suscrito exitosamente." },
+          { message: "Te enviamos un email de verificacion." },
           { status: 200 }
         );
       }
+      if (existing.emailVerified) {
+        return NextResponse.json(
+          { message: "Este email ya esta suscrito.", userId: existing.id },
+          { status: 409 }
+        );
+      }
+      // Resend verification
+      const verificationToken = randomUUID();
+      await prisma.subscriber.update({
+        where: { email: data.email },
+        data: {
+          verificationToken,
+          verificationExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      });
+      await sendVerificationEmail(data.email, verificationToken);
       return NextResponse.json(
-        { message: "Este email ya esta suscrito." },
-        { status: 409 }
+        { message: "Te reenviamos el email de verificacion." },
+        { status: 200 }
       );
     }
 
-    await prisma.subscriber.create({
+    const verificationToken = randomUUID();
+    const subscriber = await prisma.subscriber.create({
       data: {
         email: data.email,
-        frequency: data.frequency,
+        status: "PENDING_VERIFICATION",
+        verificationToken,
+        verificationExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000),
       },
     });
 
+    await sendVerificationEmail(data.email, verificationToken);
+
     return NextResponse.json(
-      { message: "Suscripcion exitosa. Pronto recibiras tu primer newsletter." },
+      {
+        message: "Te enviamos un email de verificacion. Revisa tu bandeja de entrada.",
+        userId: subscriber.id,
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -57,4 +89,16 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function sendVerificationEmail(email: string, token: string) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const verifyUrl = `${appUrl}/api/verify?token=${token}`;
+  const html = buildVerificationEmailTemplate(verifyUrl);
+
+  await sendEmail({
+    to: email,
+    subject: "Verifica tu email - The AI Pulse",
+    html,
+  });
 }
