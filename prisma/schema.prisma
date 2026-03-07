@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Subscriber {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  frequency Frequency @default(WEEKLY)
+  status    SubStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([status, frequency])
+}
+
+model Newsletter {
+  id          String           @id @default(cuid())
+  title       String
+  summary     String
+  content     String
+  imageUrl    String?
+  status      NewsletterStatus @default(DRAFT)
+  generatedAt DateTime         @default(now())
+  sentAt      DateTime?
+
+  @@index([status, generatedAt(sort: Desc)])
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+}
+
+enum SubStatus {
+  ACTIVE
+  UNSUBSCRIBED
+}
+
+enum NewsletterStatus {
+  DRAFT
+  PUBLISHED
+  SENT
+}
