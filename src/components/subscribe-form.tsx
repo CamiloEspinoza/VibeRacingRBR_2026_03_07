@@ -73,7 +73,7 @@ export function SubscribeForm() {
         <Button
           type="submit"
           size="lg"
-          className="h-12 px-6 bg-primary hover:bg-primary/90 font-semibold"
+          className="h-12 px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold border-0"
           disabled={status === "loading"}
         >
           {status === "loading" ? (

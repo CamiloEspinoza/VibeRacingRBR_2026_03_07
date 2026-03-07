@@ -1,13 +1,27 @@
 import type { Metadata } from "next";
+import { Instrument_Serif, DM_Sans } from "next/font/google";
 import "./globals.css";
 
+const instrumentSerif = Instrument_Serif({
+  weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-instrument-serif",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  weight: ["300", "400", "500", "600"],
+});
+
 export const metadata: Metadata = {
-  title: "The AI Pulse - Newsletter de Tecnologia Generado por IA",
+  title: "The AI Pulse — Newsletter de Tecnología Generado por IA",
   description:
-    "Recibe las noticias mas relevantes de tecnologia, AI, startups y desarrollo de software. Cada edicion es generada automaticamente por inteligencia artificial.",
+    "Conecta LinkedIn y X. Recibe las noticias más relevantes de tecnología, AI y startups, curadas por inteligencia artificial dos veces al día.",
   openGraph: {
     title: "The AI Pulse",
-    description: "Tu dosis diaria de innovacion y tecnologia, curada por IA",
+    description: "Tu digest diario de innovación y tecnología, curado por IA",
     type: "website",
   },
 };
@@ -19,7 +33,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="antialiased">
+      <body
+        className={`${instrumentSerif.variable} ${dmSans.variable} antialiased`}
+      >
         {children}
       </body>
     </html>
