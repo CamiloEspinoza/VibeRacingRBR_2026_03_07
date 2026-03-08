@@ -1,8 +1,9 @@
-import Zavudev from "@zavudev/sdk";
+import { Resend } from "resend";
 
-const client = new Zavudev({
-  apiKey: process.env.ZAVUDEV_API_KEY!,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM_EMAIL =
+  process.env.RESEND_FROM_EMAIL || "The AI Pulse <onboarding@resend.dev>";
 
 export interface SendEmailParams {
   to: string;
@@ -12,15 +13,21 @@ export interface SendEmailParams {
 
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
   try {
-    const response = await client.messages.send({
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
       to,
-      text: subject,
-      // If Zavu supports email channel, we pass html content
-      // For now using the messages API
+      subject,
+      html,
     });
-    return { success: true, data: response };
+
+    if (error) {
+      console.error("Resend error:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
   } catch (error) {
-    console.error("Failed to send email via Zavu:", error);
+    console.error("Failed to send email:", error);
     return { success: false, error };
   }
 }
@@ -51,12 +58,12 @@ export function buildEmailTemplate({
         <table role="presentation" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
           <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); padding: 32px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">
+            <td style="background-color: #0a0a0a; padding: 32px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-style: italic; font-weight: 400; letter-spacing: -0.5px;">
                 The AI Pulse
               </h1>
-              <p style="margin: 8px 0 0; color: rgba(255,255,255,0.85); font-size: 14px;">
-                Tu dosis de innovacion y tecnologia
+              <p style="margin: 8px 0 0; color: rgba(255,255,255,0.5); font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;">
+                Tu dosis de innovación y tecnología
               </p>
             </td>
           </tr>
@@ -91,7 +98,7 @@ export function buildEmailTemplate({
               <p style="margin: 0 0 8px; color: #6b7280; font-size: 13px;">
                 Recibiste este email porque te suscribiste a The AI Pulse.
               </p>
-              <a href="${unsubscribeUrl}" style="color: #7c3aed; font-size: 13px; text-decoration: underline;">
+              <a href="${unsubscribeUrl}" style="color: #f97316; font-size: 13px; text-decoration: underline;">
                 Cancelar suscripcion
               </a>
             </td>
@@ -119,21 +126,21 @@ export function buildVerificationEmailTemplate(verifyUrl: string): string {
       <td style="padding: 40px 20px;">
         <table role="presentation" style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
           <tr>
-            <td style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); padding: 32px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800;">The AI Pulse</h1>
+            <td style="background-color: #0a0a0a; padding: 32px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-style: italic; font-weight: 400;">The AI Pulse</h1>
             </td>
           </tr>
           <tr>
             <td style="padding: 40px; text-align: center;">
-              <h2 style="margin: 0 0 16px; font-size: 22px; color: #1a1a2e;">Verifica tu email</h2>
+              <h2 style="margin: 0 0 16px; font-size: 22px; color: #111827; font-weight: 600;">Verifica tu email</h2>
               <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
-                Haz clic en el boton de abajo para verificar tu email y comenzar a conectar tus redes sociales.
+                Haz clic en el botón de abajo para verificar tu email y comenzar a conectar tus redes sociales.
               </p>
-              <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                Verificar email
+              <a href="${verifyUrl}" style="display: inline-block; background-color: #f97316; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                Verificar email →
               </a>
               <p style="color: #9ca3af; font-size: 13px; margin: 24px 0 0;">
-                Este enlace expira en 24 horas.
+                Este enlace expira en 24 horas. Si no te suscribiste, ignora este mensaje.
               </p>
             </td>
           </tr>
